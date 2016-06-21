@@ -38,28 +38,21 @@ public class MainActivity extends AppCompatActivity {
     public static  final int BY_POPULARITY =1;
     public static  final int BY_RATING =2;
     int ListFetchType = BY_POPULARITY;
-    EndlessRecyclerOnScrollListener endlessRecyclerOnScrollListener;
+    GridLayoutManager gridLayoutManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         rvMovies = (RecyclerView) findViewById(R.id.rv_movie_list);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+        gridLayoutManager = new GridLayoutManager(this, 2);
         rvMovies.setLayoutManager(gridLayoutManager);
         rvMovies.hasFixedSize();
         moviesAdapter = new MoviesAdapter(getBaseContext(),movies);
         rvMovies.setAdapter(moviesAdapter);
-        endlessRecyclerOnScrollListener =
-                new EndlessRecyclerOnScrollListener(gridLayoutManager) {
-                    @Override
-                    public void onLoadMore(int currentPage) {
-                        Log.d("here", "here");
-                        getMovieList();
-                    }
-                };
 
-        rvMovies.addOnScrollListener(endlessRecyclerOnScrollListener);
+        rvMovies.addOnScrollListener(getScrollLsitner());
         getMovieList();
 
 
@@ -100,7 +93,15 @@ public class MainActivity extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-
+    public EndlessRecyclerOnScrollListener getScrollLsitner(){
+        return new EndlessRecyclerOnScrollListener(gridLayoutManager) {
+            @Override
+            public void onLoadMore(int currentPage) {
+                Log.d("here", "here");
+                getMovieList();
+            }
+        };
+    }
     private class MoviesAdapter extends RecyclerView.Adapter {
         ArrayList<Movie> movies = new ArrayList<Movie>();
         Context context;
@@ -172,9 +173,11 @@ public class MainActivity extends AppCompatActivity {
                 if(ListFetchType == BY_RATING){
                     ListFetchType = BY_POPULARITY;
                     movies.clear();
-                  //  moviesAdapter.notifyDataSetChanged();
+                    moviesAdapter.notifyDataSetChanged();
                     PageNumber = 1;
-                  //  rvMovies.addOnScrollListener(endlessRecyclerOnScrollListener);
+                  //  moviesAdapter = new MoviesAdapter(getBaseContext(),movies);
+                  //  rvMovies.setAdapter(moviesAdapter);
+                    rvMovies.addOnScrollListener(getScrollLsitner());
 
                     getMovieList();
                 }
@@ -183,9 +186,11 @@ public class MainActivity extends AppCompatActivity {
                 if(ListFetchType == BY_POPULARITY){
                     ListFetchType = BY_RATING;
                     movies.clear();
-                  //  moviesAdapter.notifyDataSetChanged();
+                    moviesAdapter.notifyDataSetChanged();
                     PageNumber = 1;
-                  //  rvMovies.addOnScrollListener(endlessRecyclerOnScrollListener);
+                  //  moviesAdapter = new MoviesAdapter(getBaseContext(),movies);
+                  //  rvMovies.setAdapter(moviesAdapter);
+                    rvMovies.addOnScrollListener(getScrollLsitner());
 
                     getMovieList();
                 }
