@@ -2,6 +2,8 @@ package me.shamil.project_movies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -39,12 +41,14 @@ public class MainActivity extends AppCompatActivity {
     public static  final int BY_RATING =2;
     int ListFetchType = BY_POPULARITY;
     GridLayoutManager gridLayoutManager;
+    public static final String EXTRA_IMAGE = "DetailedActivity:image";
+    AppCompatActivity activity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        activity = this;
         rvMovies = (RecyclerView) findViewById(R.id.rv_movie_list);
         gridLayoutManager = new GridLayoutManager(this, 2);
         rvMovies.setLayoutManager(gridLayoutManager);
@@ -123,15 +127,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            MovieViewHolder movieViewHolder = (MovieViewHolder) holder;
+            final MovieViewHolder movieViewHolder = (MovieViewHolder) holder;
             final Movie movie = movies.get(position);
             Log.d("Url", "http://image.tmdb.org/t/p/w185/"+movie.mPosterUrl);
             movieViewHolder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(context , DetailedActivity.class);
-                    intent.putExtra("movie",new Gson().toJson(movie));
-                    startActivity(intent);
+                    launch(activity,movieViewHolder.imageView,"http://image.tmdb.org/t/p/w185/"+movie.mPosterUrl,movie);
                 }
             });
             movieViewHolder.textView.setText(movie.mTittle);
@@ -156,7 +158,15 @@ public class MainActivity extends AppCompatActivity {
             imageView = (ImageView) itemView.findViewById(R.id.iv_poster);
         }
     }
-
+    public static void launch(AppCompatActivity activity, View transitionView, String url,Movie movie) {
+        ActivityOptionsCompat options =
+                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        activity, transitionView, EXTRA_IMAGE);
+        Intent intent = new Intent(activity, DetailedActivity.class);
+        intent.putExtra(EXTRA_IMAGE, url);
+        intent.putExtra("movie",new Gson().toJson(movie));
+        ActivityCompat.startActivity(activity, intent, options.toBundle());
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater=getMenuInflater();

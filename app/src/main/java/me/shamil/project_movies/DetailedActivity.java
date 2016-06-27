@@ -1,6 +1,7 @@
 package me.shamil.project_movies;
 
 import android.content.Intent;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -12,13 +13,17 @@ import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 
 public class DetailedActivity extends AppCompatActivity {
+    public static final String EXTRA_IMAGE = "DetailedActivity:image";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detailed);
         Intent intent = getIntent();
-        Movie movie = new Gson().fromJson(intent.getStringExtra("movie"),Movie.class);
+        Movie movie = new Gson().fromJson(intent.getStringExtra("movie"),Movie.class)
+                ;
+        ViewCompat.setTransitionName((ImageView)findViewById(R.id.image), EXTRA_IMAGE);
+
         Glide.with(this).load( "http://image.tmdb.org/t/p/w500/"+movie.mPosterUrl).into((ImageView)findViewById(R.id.image));
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(movie.mTittle);
